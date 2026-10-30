@@ -6,7 +6,7 @@
 
 .approach-inner {
   display: grid;
-  width: min(var(--page-content-width, 1280px), 100%);
+  width: min(1600px, 100%);
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(42px, 8vw, 110px);

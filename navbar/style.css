@@ -48,12 +48,12 @@ button {
 }
 
 .container {
-  width: min(var(--page-content-width, 1280px), calc(100% - 48px));
+  width: min(1600px, calc(100% - 48px));
   margin: 0 auto;
 }
 
 .site-header .container {
-  width: min(var(--page-content-width, 1280px), calc(100% - 48px));
+  width: min(1680px, calc(100% - 48px));
 }
 
 .site-header {

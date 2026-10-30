@@ -519,17 +519,6 @@
           message: (els['goal'].value || '').trim(),
           website: els['website'] ? els['website'].value : ''
         };
-        var localError = null;
-        if (payload.name.length < 2) {
-          localError = 'Please enter your name (at least 2 characters).';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-          localError = 'Please enter a valid work email address.';
-        } else if (payload.message.length < 10) {
-          localError = 'Please tell us a little more — at least 10 characters.';
-        } else if (payload.message.length > 5000) {
-          localError = 'Your message is too long (5000 characters maximum).';
-        }
-        if (localError) { show(localError, false); return; }
         var orig = btn.innerHTML;
         btn.disabled = true; btn.textContent = 'Sending…';
         fetch(form.action, {
@@ -543,16 +532,7 @@
             form.reset();
             show(res.d.message || "Thank you! We'll get back to you within 24 hours.", true);
           } else {
-            var msg = 'Please check the form and try again, or email info@digiagentic.in.';
-            if (res.d && res.d.errors) {
-              var keys = Object.keys(res.d.errors);
-              if (keys.length) {
-                var first = res.d.errors[keys[0]];
-                if (Array.isArray(first)) { first = first[0]; }
-                if (first) { msg = first; }
-              }
-            }
-            show(msg, false);
+            show('Please check the form and try again, or email info@digiagentic.in.', false);
           }
         })
         .catch(function () {

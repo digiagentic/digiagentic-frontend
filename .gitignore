@@ -14,7 +14,3 @@ Thumbs.db
 
 # Build output (generated, not source)
 /dist/
-
-# Wrangler (Cloudflare) local state — never commit
-.wrangler/
-node_modules/

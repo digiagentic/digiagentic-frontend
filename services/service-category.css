@@ -13,7 +13,7 @@
 
 .service-detail-hero-inner {
   display: grid;
-  width: min(1280px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
   min-height: 460px;
   grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
   align-items: center;
@@ -227,7 +227,7 @@
 }
 
 .service-detail-offerings-inner {
-  width: min(1280px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
   margin-inline: auto;
 }
 
@@ -370,7 +370,7 @@
 
 .service-detail-cta-inner {
   display: flex;
-  width: min(1280px, 100%);
+  width: min(1600px, 100%);
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -419,7 +419,7 @@
 }
 
 .pillar-services-inner {
-  width: min(1280px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
   margin-inline: auto;
 }
 
@@ -601,7 +601,7 @@
 }
 
 .service-pipeline-inner {
-  width: min(1280px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
   margin-inline: auto;
 }
 
@@ -692,7 +692,7 @@
 }
 
 .subservice-content-inner {
-  width: min(1280px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
   margin-inline: auto;
 }
 
@@ -798,7 +798,7 @@
 
 .subservice-next-inner {
   display: flex;
-  width: min(1280px, calc(100% - 48px));
+  width: min(1400px, calc(100% - 48px));
   align-items: center;
   justify-content: space-between;
   gap: 32px;

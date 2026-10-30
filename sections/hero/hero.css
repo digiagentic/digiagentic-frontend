@@ -1,8 +1,8 @@
 .hero-section {
   display: grid;
-  width: min(var(--page-content-width, 1280px), calc(100% - 48px));
+  width: min(1680px, calc(100% - 48px));
   min-height: 630px;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(420px, 0.9fr);
   align-items: center;
   gap: clamp(36px, 4vw, 60px);
   margin: 0 auto;
@@ -94,7 +94,7 @@
   width: min(100%, 520px);
   aspect-ratio: 1;
   place-items: center;
-  justify-self: center;
+  justify-self: end;
   isolation: isolate;
 }
 
@@ -166,10 +166,7 @@
 }
 
 .visual-core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   z-index: 2;
   display: flex;
   width: 38%;
