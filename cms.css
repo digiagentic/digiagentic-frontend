@@ -540,3 +540,8 @@
 .faq-hero { padding-bottom: 60px; }
 .faq-hero .cms-hero-intro { font-size: 1.1rem; margin-bottom: 0; }
 .faq-list { padding: 0 24px 64px; }
+
+/* Page-level FAQ section (services, pillars, work, about, blog) — reuses .cms-faq accordion */
+.faq-section { padding: 8px 0 12px; }
+.faq-head { max-width: 760px; margin: 0 auto 24px; text-align: center; }
+.faq-head h2 { margin: 6px 0 0; letter-spacing: -0.02em; }
