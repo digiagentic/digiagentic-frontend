@@ -1,14 +1,14 @@
 /* =====================================================================
    DigiAgentic — CTA popup form
    Opens a short enquiry form (Name, Mobile, Email optional, Query) when a
-   visitor clicks any "Book a discovery call" / contact CTA, instead of
-   jumping to the contact section. Submits to the existing contact API, so
-   leads land in the same admin inbox.
+   visitor clicks any "Book a discovery call" / contact / audit CTA, instead
+   of navigating away. Submits to the existing contact API, so leads land in
+   the same admin inbox.
 
    Loaded on every page. Self-contained: injects its own styles + markup.
    CTAs it hijacks: <a> with class button-primary / button-light /
-   footer-cta-link whose href ends in "#contact". (The "Get a Free Audit"
-   button and plain nav links are left alone.)
+   footer-cta-link whose href ends in "#contact", plus the audit CTA buttons
+   (class audit-btn / services-cta-button).
    ===================================================================== */
 (function () {
   "use strict";
@@ -19,8 +19,7 @@
     'a.button-light[href$="#contact"],' +
     'a.footer-cta-link[href$="#contact"],' +
     'a.audit-btn,' +
-    'a.services-cta-button,' +
-    'a[href$="/free-digital-presence-audit/"]';
+    'a.services-cta-button';
 
   /* ---------- styles ---------- */
   var css =
@@ -49,27 +48,28 @@
     '.cta-modal-done h2{margin-bottom:8px}';
 
   /* ---------- markup ---------- */
+  var contentHTML =
+    '<p class="cta-modal-kicker">Book a discovery call</p>' +
+    '<h2 id="cta-modal-title">Let’s understand your business</h2>' +
+    '<p class="cta-modal-sub">Share a few details and we’ll call you back within 24 hours. No obligation.</p>' +
+    '<form class="cta-modal-form" novalidate>' +
+      '<label>Name<input name="name" type="text" autocomplete="name" required maxlength="200" /></label>' +
+      '<label>Mobile number<input name="phone" type="tel" inputmode="numeric" autocomplete="tel" required /></label>' +
+      '<label>Email <span style="font-weight:400;color:#6b7186">(optional)</span><input name="email" type="email" autocomplete="email" /></label>' +
+      '<label>Your query<textarea name="message" rows="3" required></textarea></label>' +
+      '<input class="cta-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />' +
+      '<button type="submit" class="cta-modal-submit">Submit</button>' +
+      '<p class="cta-modal-status" role="status" aria-live="polite" hidden></p>' +
+    '</form>';
+
   var html =
     '<div class="cta-modal-backdrop" data-cta-close></div>' +
     '<div class="cta-modal-box" role="dialog" aria-modal="true" aria-labelledby="cta-modal-title">' +
       '<button type="button" class="cta-modal-close" data-cta-close aria-label="Close">&times;</button>' +
-      '<div class="cta-modal-content">' +
-        '<p class="cta-modal-kicker">Book a discovery call</p>' +
-        '<h2 id="cta-modal-title">Let’s understand your business</h2>' +
-        '<p class="cta-modal-sub">Share a few details and we’ll call you back within 24 hours. No obligation.</p>' +
-        '<form class="cta-modal-form" novalidate>' +
-          '<label>Name<input name="name" type="text" autocomplete="name" required maxlength="200" /></label>' +
-          '<label>Mobile number<input name="phone" type="tel" inputmode="numeric" autocomplete="tel" required /></label>' +
-          '<label>Email <span style="font-weight:400;color:#6b7186">(optional)</span><input name="email" type="email" autocomplete="email" /></label>' +
-          '<label>Your query<textarea name="message" rows="3" required></textarea></label>' +
-          '<input class="cta-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />' +
-          '<button type="submit" class="cta-modal-submit">Submit</button>' +
-          '<p class="cta-modal-status" role="status" aria-live="polite" hidden></p>' +
-        '</form>' +
-      '</div>' +
+      '<div class="cta-modal-content"></div>' +
     '</div>';
 
-  var modal, lastFocus;
+  var modal, lastFocus, prevOverflow;
 
   function build() {
     var style = document.createElement("style");
@@ -85,15 +85,24 @@
     modal.addEventListener("click", function (e) {
       if (e.target.hasAttribute("data-cta-close")) close();
     });
-    modal.querySelector(".cta-modal-form").addEventListener("submit", submit);
+  }
+
+  // Render a fresh form into the modal. Called on every open, so the form
+  // comes back blank even after a previous successful submission replaced it
+  // with the thank-you message.
+  function renderForm() {
+    var content = modal.querySelector(".cta-modal-content");
+    content.innerHTML = contentHTML;
+    content.querySelector(".cta-modal-form").addEventListener("submit", submit);
   }
 
   function open(sourceLabel) {
     if (!modal) build();
+    renderForm();
     lastFocus = document.activeElement;
-    // record which page/CTA the lead came from (shows in the admin + email)
-    var hp = modal.querySelector('input[name="website"]');
+    // record which page/CTA the lead came from (shows in the admin inbox)
     modal.setAttribute("data-source", sourceLabel || document.title || location.pathname);
+    prevOverflow = document.documentElement.style.overflow;
     modal.hidden = false;
     document.documentElement.style.overflow = "hidden";
     var first = modal.querySelector('input[name="name"]');
@@ -103,7 +112,7 @@
   function close() {
     if (!modal) return;
     modal.hidden = true;
-    document.documentElement.style.overflow = "";
+    document.documentElement.style.overflow = prevOverflow || "";
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -128,6 +137,7 @@
 
     if (name.length < 2) { show("Please enter your name.", false); els["name"].focus(); return; }
     if (phoneDigits.length !== 10) { show("Please enter a valid 10-digit mobile number.", false); els["phone"].focus(); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { show("Please enter a valid email, or leave it blank.", false); els["email"].focus(); return; }
     if (message.length < 3) { show("Please tell us briefly what you need.", false); els["message"].focus(); return; }
 
     var payload = {
@@ -135,7 +145,8 @@
       phone: phoneDigits,
       email: email,
       message: message,
-      service_interest: modal.getAttribute("data-source") || "",
+      // keep within the server's 200-char limit on service_interest
+      service_interest: (modal.getAttribute("data-source") || "").slice(0, 180),
       website: els["website"] ? els["website"].value : ""
     };
 
@@ -159,6 +170,8 @@
               '<p class="cta-modal-sub">Thank you. We’ll call you back within 24 hours.</p>' +
               '<button type="button" class="cta-modal-submit" data-cta-close>Close</button>' +
             '</div>';
+          var done = box.querySelector("[data-cta-close]");
+          if (done) done.focus();
         } else {
           show("Something went wrong. Please try again, or email info@digiagentic.in.", false);
         }
@@ -174,11 +187,22 @@
     var link = e.target.closest ? e.target.closest(SELECTOR) : null;
     if (!link) return;
     e.preventDefault();
-    var label = (link.textContent || "").trim() + "  —  " + location.pathname;
+    var label = ((link.textContent || "").trim() + "  —  " + location.pathname).slice(0, 180);
     open(label);
   });
 
+  /* ---------- keyboard: Escape closes, Tab trapped inside the modal ---------- */
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && modal && !modal.hidden) close();
+    if (!modal || modal.hidden) return;
+    if (e.key === "Escape") { close(); return; }
+    if (e.key === "Tab") {
+      var nodes = modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled])');
+      var f = [];
+      for (var i = 0; i < nodes.length; i++) { if (nodes[i].tabIndex !== -1) f.push(nodes[i]); }
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
   });
 })();
