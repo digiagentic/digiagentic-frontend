@@ -17,7 +17,10 @@
   var SELECTOR =
     'a.button-primary[href$="#contact"],' +
     'a.button-light[href$="#contact"],' +
-    'a.footer-cta-link[href$="#contact"]';
+    'a.footer-cta-link[href$="#contact"],' +
+    'a.audit-btn,' +
+    'a.services-cta-button,' +
+    'a[href$="/free-digital-presence-audit/"]';
 
   /* ---------- styles ---------- */
   var css =
